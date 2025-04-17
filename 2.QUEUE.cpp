@@ -1,66 +1,58 @@
 #include <iostream>
-#define MAX 100 // Maximum size of the queue
+#define MAX 100
 
 using namespace std;
 
-// Define the queue using a struct
 struct Queue {
-    int arr[MAX]; // Array to store queue elements
-    int front;    // Index of the front element
-    int rear;     // Index of the rear element
+    int arr[MAX];
+    int front;
+    int rear;
 
-    // Constructor to initialize the queue
     Queue() {
         front = -1;
         rear = -1;
     }
 
-    // Function to enqueue an element into the queue
+    bool isEmpty() {
+        return front == -1 || front > rear;
+    }
+
+    bool isFull() {
+        return rear == MAX - 1;
+    }
+
     void enqueue(int value) {
-        if (rear == MAX - 1) {
+        if (isFull()) {
             cout << "Queue Overflow!" << endl;
             return;
         }
-        if (front == -1) front = 0; // First element
+        if (front == -1) front = 0;
         arr[++rear] = value;
         cout << value << " enqueued into queue." << endl;
     }
 
-    // Function to dequeue an element from the queue (optional silent mode)
     int dequeue(bool silent = false) {
-        if (front == -1 || front > rear) {
-            cout << "Queue Underflow!" << endl;
+        if (isEmpty()) {
+            if (!silent) cout << "Queue Underflow!" << endl;
             return -1;
         }
         int removed = arr[front++];
-
-        // Reset queue when empty
         if (front > rear) {
             front = -1;
             rear = -1;
         }
-
-        if (!silent)
-            cout << removed << " dequeued from queue." << endl;
-
+        if (!silent) cout << removed << " dequeued from queue." << endl;
         return removed;
     }
 
-    // Function to peek the front element of the queue
     int peek() {
-        if (front == -1 || front > rear) {
+        if (isEmpty()) {
             cout << "Queue is empty!" << endl;
             return -1;
         }
         return arr[front];
     }
 
-    // Function to check if the queue is empty
-    bool isEmpty() {
-        return front == -1 || front > rear;
-    }
-
-    // Function to display the queue elements
     void display() {
         if (isEmpty()) {
             cout << "Queue is empty!" << endl;
@@ -73,34 +65,73 @@ struct Queue {
         cout << endl;
     }
 
-    // Function to reverse the queue using recursion
+    void displayReverse() {
+        if (isEmpty()) {
+            cout << "Queue is empty!" << endl;
+            return;
+        }
+        cout << "Queue elements in reverse: ";
+        for (int i = rear; i >= front; i--) {
+            cout << arr[i] << " ";
+        }
+        cout << endl;
+    }
+
     void reverseQueue() {
         if (isEmpty()) return;
 
-        int data = dequeue(true); // Silent mode
+        int data = dequeue(true); // Dequeue silently
         reverseQueue();
-        if (front == -1)
-            front =0;
-        arr[++rear]=data;
+        enqueue(data); // Reuse enqueue to maintain consistency
+    }
+
+    void displayWithoutDuplicates() {
+        if (isEmpty()) {
+            cout << "Queue is empty!" << endl;
+            return;
+        }
+
+        cout << "Queue elements (without duplicates): ";
+        int unique[MAX];
+        int uniqueSize = 0;
+
+        for (int i = front; i <= rear; i++) {
+            bool isDuplicate = false;
+            for (int j = 0; j < uniqueSize; j++) {
+                if (arr[i] == unique[j]) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                cout << arr[i] << " ";
+                unique[uniqueSize++] = arr[i];
+            }
+        }
+        cout << endl;
     }
 };
 
 int main() {
     Queue queue;
 
-    // Basic operations
     queue.enqueue(10);
     queue.enqueue(20);
     queue.enqueue(30);
+    queue.enqueue(20);
+    queue.enqueue(10);
     queue.enqueue(40);
 
-    cout << "Before reversing:" << endl;
+    cout << "\nBefore reversing:" << endl;
     queue.display();
+    queue.displayReverse();
+
+    cout << "\nQueue without duplicates:" << endl;
+    queue.displayWithoutDuplicates();
 
     queue.reverseQueue();
 
-    cout << "After reversing:" << endl;
+    cout << "\nAfter reversing:" << endl;
     queue.display();
-
-    return 0;
 }
+
